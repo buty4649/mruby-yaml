@@ -23,10 +23,14 @@ If you need to check if a feature is supported at runtime, replace `MRUBY_YAML_`
 ```ruby
 if YAML::SUPPORT_NULL
   YAML.load('null') == nil
-else  
+else
   YAML.load('null') == 'null'
 end
 ```
+
+### ~ or null
+
+By default, null is output as `~`. Define MRUBY_YAML_NO_CANONICAL_VALUE if you want it to be output as `null`.
 
 ### Getting libyaml
 

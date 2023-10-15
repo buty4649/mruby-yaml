@@ -20,6 +20,11 @@
 #ifndef MRUBY_YAML_NULL
 #  define MRUBY_YAML_NULL 1
 #endif
+#ifndef MRUBY_YAML_NO_CANONICAL_NULL
+#  ifndef MRUBY_YAML_CANONICAL_NULL
+#    define MRUBY_YAML_CANONICAL_NULL 1
+#  endif
+#endif
 #ifndef MRUBY_YAML_BOOLEAN_ON
 #  define MRUBY_YAML_BOOLEAN_ON 1
 #endif
@@ -405,12 +410,19 @@ int value_to_node(mrb_state *mrb,
 
     default:
     {
+      int len;
       if (mrb_nil_p(value)) {
-        /* http://yaml.org/type/null.html
-           Canonical form */
-        value = mrb_str_new_lit(mrb, "~");
+        #if MRUBY_YAML_CANONICAL_NULL
+          /* http://yaml.org/type/null.html
+             Canonical form */
+          value = mrb_str_new_lit(mrb, "~");
+          len = 1;
+        #else
+          value = mrb_str_new_lit(mrb, "null");
+          len = 4;
+        #endif
         node = yaml_document_add_scalar(document, NULL,
-                (unsigned char *) RSTRING_PTR(value), 1, YAML_ANY_SCALAR_STYLE);
+                (unsigned char *) RSTRING_PTR(value), len, YAML_ANY_SCALAR_STYLE);
       } else {
         /* Equivalent to `obj = obj#to_s` */
         node = value_to_node(mrb, document, mrb_obj_as_string(mrb, value));
